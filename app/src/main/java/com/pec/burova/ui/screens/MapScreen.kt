@@ -5,16 +5,23 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
+import androidx.compose.ui.viewinterop.AndroidView
+import com.yandex.mapkit.MapKitFactory
+import com.yandex.mapkit.geometry.Point
+import com.yandex.mapkit.geometry.Circle
+import com.yandex.mapkit.map.CameraPosition
+import com.yandex.mapkit.mapview.MapView
 import com.pec.burova.ui.theme.DarkGray
 import com.pec.burova.ui.theme.LightGray
 import com.pec.burova.ui.theme.White
@@ -23,6 +30,16 @@ import com.pec.burova.ui.theme.White
 fun MapScreen(
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
+    var markersAdded by remember { mutableStateOf(false) }
+
+    DisposableEffect(Unit) {
+        MapKitFactory.getInstance().onStart()
+        onDispose {
+            MapKitFactory.getInstance().onStop()
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -64,29 +81,76 @@ fun MapScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Map Placeholder
                 Card(
-                    modifier = Modifier.fillMaxWidth().height(300.dp),
+                    modifier = Modifier.fillMaxWidth().height(350.dp),
                     shape = RoundedCornerShape(12.dp),
                     border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray)
                 ) {
-                    Image(
-                        painter = rememberAsyncImagePainter("https://maps.googleapis.com/maps/api/staticmap?center=55.808,38.976&zoom=15&size=600x600&markers=color:red%7C55.808,38.976&key=YOUR_API_KEY"), // Dummy static map
-                        contentDescription = "Map",
+                    AndroidView(
+                        factory = { 
+                            val center = Point(55.806, 38.966)
+                            MapView(context).apply {
+                                onStart()
+                                mapWindow.map.move(
+                                    CameraPosition(center, 13.5f, 0.0f, 0.0f)
+                                )
+                            }
+                        },
                         modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
+                        update = { mapView ->
+                            mapView.onStart()
+                            if (!markersAdded) {
+                                try {
+                                    val map = mapView.mapWindow.map
+                                    map.mapObjects.clear()
+                                    
+                                    val pek10Location = Point(55.8113, 38.9551)
+                                    val pek12Location = Point(55.8010, 38.9785)
+                                    
+                                    // 10 Corps (Circle Marker)
+                                    map.mapObjects.addCircle(Circle(pek10Location, 25f)).apply {
+                                        strokeColor = Color.Red.toArgb()
+                                        strokeWidth = 3f
+                                        fillColor = Color.Red.copy(alpha = 0.3f).toArgb()
+                                        zIndex = 100f
+                                    }
+                                    map.mapObjects.addCircle(Circle(pek10Location, 5f)).apply {
+                                        fillColor = Color.Red.toArgb()
+                                        zIndex = 101f
+                                    }
+
+                                    // 12 Corps (Circle Marker)
+                                    map.mapObjects.addCircle(Circle(pek12Location, 25f)).apply {
+                                        strokeColor = Color.Blue.toArgb()
+                                        strokeWidth = 3f
+                                        fillColor = Color.Blue.copy(alpha = 0.3f).toArgb()
+                                        zIndex = 100f
+                                    }
+                                    map.mapObjects.addCircle(Circle(pek12Location, 5f)).apply {
+                                        fillColor = Color.Blue.toArgb()
+                                        zIndex = 101f
+                                    }
+                                    
+                                    markersAdded = true
+                                } catch (e: Exception) {
+                                    markersAdded = true
+                                }
+                            }
+                        }
                     )
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                Button(
+                IconButton(
                     onClick = onBack,
-                    modifier = Modifier.fillMaxWidth().height(50.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = LightGray)
+                    modifier = Modifier.padding(top = 16.dp).align(Alignment.CenterHorizontally)
                 ) {
-                    Text("На главную", color = Color.Black, fontWeight = FontWeight.Bold)
+                    Image(
+                        painter = painterResource(id = com.pec.burova.R.drawable.ic_back_custom),
+                        contentDescription = "Back",
+                        modifier = Modifier.size(50.dp)
+                    )
                 }
             }
         }

@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.pec.burova.ui.screens.*
+import com.yandex.mapkit.MapKitFactory
 import com.pec.burova.ui.theme.QRForStudentsTheme
 import com.pec.burova.ui.viewmodels.StudentViewModel
 
@@ -47,10 +48,20 @@ class MainActivity : ComponentActivity() {
                         MapScreen(onBack = { navController.popBackStack() })
                     }
                     composable("profile") {
-                        ProfileScreen(onBack = { navController.popBackStack() })
+                        ProfileScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
                     }
                 }
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        MapKitFactory.getInstance().onStart()
+    }
+
+    override fun onStop() {
+        MapKitFactory.getInstance().onStop()
+        super.onStop()
     }
 }

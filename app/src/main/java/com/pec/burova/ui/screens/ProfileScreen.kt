@@ -1,5 +1,7 @@
 package com.pec.burova.ui.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,30 +16,53 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.painterResource
 import coil.compose.rememberAsyncImagePainter
 import com.pec.burova.ui.theme.DarkGray
 import com.pec.burova.ui.theme.LightGray
 import com.pec.burova.ui.theme.White
+import com.pec.burova.ui.viewmodels.StudentViewModel
 
 @Composable
 fun ProfileScreen(
+    viewModel: StudentViewModel,
     onBack: () -> Unit
 ) {
-    var selectedPhoto by remember { mutableStateOf("https://cataas.com/cat") }
-    val photos = listOf(
-        "https://cataas.com/cat?1",
-        "https://cataas.com/cat?2",
-        "https://cataas.com/cat?3",
-        "https://cataas.com/cat?4",
-        "https://cataas.com/cat?5",
-        "https://cataas.com/cat?6",
-        "https://cataas.com/cat?7",
-        "https://cataas.com/cat?8",
-        "https://cataas.com/cat?9"
-    )
+    val student by viewModel.currentStudent.collectAsState()
+    val uploadStatus by viewModel.uploadStatus.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(uploadStatus) {
+        uploadStatus?.let {
+            if (it == "Success") {
+                android.widget.Toast.makeText(context, "Аватар обновлен!", android.widget.Toast.LENGTH_SHORT).show()
+            } else if (it.startsWith("Error")) {
+                android.widget.Toast.makeText(context, "Ошибка: $it", android.widget.Toast.LENGTH_LONG).show()
+            }
+            viewModel.clearUploadStatus()
+        }
+    }
+    
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        uri?.let {
+            try {
+                context.contentResolver.openInputStream(it)?.use { inputStream ->
+                    val bytes = inputStream.readBytes()
+                    val contentType = context.contentResolver.getType(it) ?: "image/png"
+                    viewModel.uploadAvatar(bytes, contentType)
+                    android.widget.Toast.makeText(context, "Загрузка началась...", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                android.widget.Toast.makeText(context, "Ошибка при выборе фото", android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -51,7 +76,11 @@ fun ProfileScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = White)
+                Image(
+                    painter = painterResource(id = com.pec.burova.R.drawable.ic_back_custom),
+                    contentDescription = "Back",
+                    modifier = Modifier.size(40.dp)
+                )
             }
             Spacer(modifier = Modifier.width(8.dp))
             Text(
@@ -68,18 +97,22 @@ fun ProfileScreen(
             modifier = Modifier.size(150.dp),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Image(
-                painter = rememberAsyncImagePainter(selectedPhoto),
+            coil.compose.AsyncImage(
+                model = student?.getAvatarBytes() ?: com.pec.burova.R.drawable.ic_profile_custom,
                 contentDescription = "Current Photo",
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(com.pec.burova.R.drawable.ic_profile_custom),
+                error = painterResource(com.pec.burova.R.drawable.ic_profile_custom)
             )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { /* Upload logic */ },
+            onClick = { 
+                launcher.launch(androidx.activity.result.PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            },
             modifier = Modifier.fillMaxWidth().height(40.dp),
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(containerColor = LightGray)
@@ -88,6 +121,25 @@ fun ProfileScreen(
         }
 
         Spacer(modifier = Modifier.height(20.dp))
+
+        Text(
+            text = "Выберите из галереи",
+            color = White,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.align(Alignment.Start)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        val photos = listOf(
+            "https://cataas.com/cat?1",
+            "https://cataas.com/cat?2",
+            "https://cataas.com/cat?3",
+            "https://cataas.com/cat?4",
+            "https://cataas.com/cat?5",
+            "https://cataas.com/cat?6"
+        )
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
@@ -98,7 +150,7 @@ fun ProfileScreen(
         ) {
             items(photos.size) { index ->
                 Card(
-                    onClick = { selectedPhoto = photos[index] },
+                    onClick = { viewModel.uploadAvatarFromUrl(photos[index]) },
                     modifier = Modifier.aspectRatio(1f),
                     shape = RoundedCornerShape(8.dp)
                 ) {
@@ -120,7 +172,7 @@ fun ProfileScreen(
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(containerColor = LightGray)
         ) {
-            Text("Сохранить изменения", color = Color.Black, fontWeight = FontWeight.Bold)
+            Text("Готово", color = Color.Black, fontWeight = FontWeight.Bold)
         }
 
         Spacer(modifier = Modifier.height(16.dp))

@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.*
+import androidx.compose.ui.res.painterResource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -49,7 +50,11 @@ fun DetailScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = White)
+                Image(
+                    painter = painterResource(id = com.pec.burova.R.drawable.ic_back_custom),
+                    contentDescription = "Back",
+                    modifier = Modifier.size(40.dp)
+                )
             }
             Text(
                 text = "Студенческий билет",
@@ -58,7 +63,11 @@ fun DetailScreen(
                 fontWeight = FontWeight.Bold
             )
             IconButton(onClick = onNavigateToProfile) {
-                Icon(Icons.Default.AccountCircle, contentDescription = "Profile", tint = White)
+                Image(
+                    painter = painterResource(id = com.pec.burova.R.drawable.ic_profile_custom),
+                    contentDescription = "Profile",
+                    modifier = Modifier.size(40.dp)
+                )
             }
         }
 
@@ -68,11 +77,13 @@ fun DetailScreen(
             modifier = Modifier.size(100.dp),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Image(
-                painter = rememberAsyncImagePainter("https://cataas.com/cat"),
+            coil.compose.AsyncImage(
+                model = student?.getAvatarBytes() ?: com.pec.burova.R.drawable.ic_profile_custom,
                 contentDescription = "Profile Photo",
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(com.pec.burova.R.drawable.ic_profile_custom),
+                error = painterResource(com.pec.burova.R.drawable.ic_profile_custom)
             )
         }
 
