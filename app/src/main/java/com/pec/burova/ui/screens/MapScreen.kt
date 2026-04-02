@@ -11,7 +11,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -47,8 +51,18 @@ fun MapScreen(
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Logo
+        Image(
+            painter = painterResource(id = com.pec.burova.R.drawable.logo_pek),
+            contentDescription = "College Logo",
+            modifier = Modifier.size(100.dp),
+            contentScale = ContentScale.Fit
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
         Text(
-            text = "Местоположение корпусов колледжа",
+            text = "Студенческий билет",
             color = White,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
@@ -66,23 +80,31 @@ fun MapScreen(
                 modifier = Modifier.padding(16.dp)
             ) {
                 Text(
-                    text = "10 корпус: Московская область, г. Орехово-Зуево, ул. Иванова, д. 4А",
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.ExtraBold)) {
+                            append("10 корпус: ")
+                        }
+                        append("Московская область, г. Орехово-Зуево, ул. Иванова, д. 4А")
+                    },
                     fontSize = 14.sp,
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold
+                    color = Color.Black
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "12 корпус: Московская область, г. Орехово-Зуево, ул. Ленина, д. 55",
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.ExtraBold)) {
+                            append("12 корпус: ")
+                        }
+                        append("Московская область, г. Орехово-Зуево, ул. Ленина, д. 55")
+                    },
                     fontSize = 14.sp,
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold
+                    color = Color.Black
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Card(
-                    modifier = Modifier.fillMaxWidth().height(350.dp),
+                    modifier = Modifier.fillMaxWidth().weight(1f),
                     shape = RoundedCornerShape(12.dp),
                     border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray)
                 ) {
@@ -140,28 +162,28 @@ fun MapScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                IconButton(
+                Button(
                     onClick = onBack,
-                    modifier = Modifier.padding(top = 16.dp).align(Alignment.CenterHorizontally)
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = LightGray),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray)
                 ) {
-                    Image(
-                        painter = painterResource(id = com.pec.burova.R.drawable.ic_back_custom),
-                        contentDescription = "Back",
-                        modifier = Modifier.size(50.dp)
-                    )
+                    Text("На главную", color = Color.Black, fontWeight = FontWeight.Bold)
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         Text(
             text = "ПЭК ГГТУ 2026",
             color = White,
             fontSize = 12.sp,
-            modifier = Modifier.padding(bottom = 16.dp)
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp)
         )
     }
 }

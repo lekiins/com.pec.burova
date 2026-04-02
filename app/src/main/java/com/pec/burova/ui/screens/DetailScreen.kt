@@ -22,6 +22,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.draw.shadow
 import coil.compose.rememberAsyncImagePainter
 import com.pec.burova.ui.theme.DarkGray
 import com.pec.burova.ui.theme.LightGray
@@ -41,82 +42,162 @@ fun DetailScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(DarkGray)
-            .padding(24.dp),
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onBack) {
-                Image(
-                    painter = painterResource(id = com.pec.burova.R.drawable.ic_back_custom),
-                    contentDescription = "Back",
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-            Text(
-                text = "Студенческий билет",
-                color = White,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-            IconButton(onClick = onNavigateToProfile) {
-                Image(
-                    painter = painterResource(id = com.pec.burova.R.drawable.ic_profile_custom),
-                    contentDescription = "Profile",
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Card(
-            modifier = Modifier.size(100.dp),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            coil.compose.AsyncImage(
-                model = student?.getAvatarBytes() ?: com.pec.burova.R.drawable.ic_profile_custom,
-                contentDescription = "Profile Photo",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
-                placeholder = painterResource(com.pec.burova.R.drawable.ic_profile_custom),
-                error = painterResource(com.pec.burova.R.drawable.ic_profile_custom)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Card(
-            modifier = Modifier.fillMaxWidth().weight(1f),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = LightGray)
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState())
-            ) {
-                DetailItem("Образовательная организация", student?.organization ?: "-")
-                DetailItem("ФИО", student?.fullName ?: "-")
-                DetailItem("Дата выдачи", student?.issueDate ?: "-")
-                DetailItem("Уровень образования", "Среднее профессиональное")
-                DetailItem("Направление подготовки", student?.specialty ?: "-")
-                DetailItem("Форма обучения", "Очная")
-                DetailItem("Курс", student?.course ?: "-")
-                DetailItem("Информация о зачислении", "1230-СК")
-            }
-        }
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Text(
+            text = "Студенческий билет",
+            color = White,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
-            onClick = onNavigateToMap,
-            modifier = Modifier.fillMaxWidth().height(50.dp),
-            shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = LightGray)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .shadow(
+                    elevation = 8.dp,
+                    shape = RoundedCornerShape(16.dp),
+                    spotColor = Color.Black.copy(alpha = 0.2f),
+                    ambientColor = Color.Black.copy(alpha = 0.05f)
+                ),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = White)
         ) {
-            Text("Местоположение", color = Color.Black, fontWeight = FontWeight.Bold)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Header Row inside White Card
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Card(
+                        onClick = onBack,
+                        shape = CircleShape,
+                        colors = CardDefaults.cardColors(containerColor = LightGray),
+                        modifier = Modifier.shadow(
+                            elevation = 4.dp,
+                            shape = CircleShape,
+                            spotColor = Color.Black.copy(alpha = 0.3f),
+                            ambientColor = Color.Black.copy(alpha = 0.1f)
+                        )
+                    ) {
+                        Image(
+                            painter = painterResource(id = com.pec.burova.R.drawable.ic_back_custom),
+                            contentDescription = "Back",
+                            modifier = Modifier.padding(10.dp).size(24.dp)
+                        )
+                    }
+                    
+                    // Avatar in Center of Header Row
+                    Card(
+                        modifier = Modifier
+                            .size(100.dp)
+                            .shadow(
+                                elevation = 6.dp,
+                                shape = RoundedCornerShape(12.dp),
+                                spotColor = Color.Black.copy(alpha = 0.25f),
+                                ambientColor = Color.Black.copy(alpha = 0.05f)
+                            ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        coil.compose.AsyncImage(
+                            model = student?.getAvatarBytes() ?: com.pec.burova.R.drawable.ic_profile_custom,
+                            contentDescription = "Profile Photo",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                            placeholder = painterResource(com.pec.burova.R.drawable.ic_profile_custom),
+                            error = painterResource(com.pec.burova.R.drawable.ic_profile_custom)
+                        )
+                    }
+
+                    Card(
+                        onClick = onNavigateToProfile,
+                        shape = CircleShape,
+                        colors = CardDefaults.cardColors(containerColor = LightGray),
+                        modifier = Modifier.shadow(
+                            elevation = 4.dp,
+                            shape = CircleShape,
+                            spotColor = Color.Black.copy(alpha = 0.3f),
+                            ambientColor = Color.Black.copy(alpha = 0.1f)
+                        )
+                    ) {
+                        Image(
+                            painter = painterResource(id = com.pec.burova.R.drawable.ic_profile_custom),
+                            contentDescription = "Profile",
+                            modifier = Modifier.padding(10.dp).size(24.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Info Card (Grey)
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .shadow(
+                            elevation = 2.dp,
+                            shape = RoundedCornerShape(12.dp),
+                            spotColor = Color.Black.copy(alpha = 0.2f),
+                            ambientColor = Color.Black.copy(alpha = 0.05f)
+                        ),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = LightGray)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        Text(
+                            text = student?.id ?: "-",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black,
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
+                        
+                        DetailItem("Образовательная организация", student?.organization ?: "-")
+                        DetailItem("ФИО", student?.fullName ?: "-")
+                        DetailItem("Дата выдачи", student?.issueDate ?: "-")
+                        DetailItem("Направление подготовки", student?.specialty ?: "-")
+                        DetailItem("Курс", student?.course ?: "-")
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = onNavigateToMap,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .shadow(
+                            elevation = 4.dp,
+                            shape = RoundedCornerShape(8.dp),
+                            spotColor = Color.Black.copy(alpha = 0.3f),
+                            ambientColor = Color.Black.copy(alpha = 0.1f)
+                        ),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = LightGray)
+                ) {
+                    Text("Местоположение", color = Color.Black, fontWeight = FontWeight.Bold)
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -125,15 +206,26 @@ fun DetailScreen(
             text = "ПЭК ГГТУ 2026",
             color = White,
             fontSize = 12.sp,
-            modifier = Modifier.padding(bottom = 16.dp)
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp)
         )
     }
 }
 
 @Composable
 fun DetailItem(label: String, value: String) {
-    Column(modifier = Modifier.padding(vertical = 8.dp)) {
-        Text(text = label, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-        Text(text = value, fontSize = 14.sp, color = Color.Black)
+    Column(modifier = Modifier.padding(vertical = 6.dp)) {
+        Text(
+            text = label, 
+            fontSize = 11.sp, 
+            fontWeight = FontWeight.Normal, 
+            color = Color.Gray
+        )
+        Text(
+            text = value, 
+            fontSize = 14.sp, 
+            fontWeight = FontWeight.Bold, 
+            color = Color.Black
+        )
     }
 }

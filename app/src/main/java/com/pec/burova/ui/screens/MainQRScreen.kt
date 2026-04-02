@@ -15,6 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.draw.shadow
 import coil.compose.rememberAsyncImagePainter
 import com.pec.burova.ui.theme.DarkGray
 import com.pec.burova.ui.theme.LightGray
@@ -51,7 +52,15 @@ fun MainQRScreen(
         Spacer(modifier = Modifier.height(20.dp))
 
         Card(
-            modifier = Modifier.fillMaxWidth().weight(1f),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .shadow(
+                    elevation = 8.dp,
+                    shape = RoundedCornerShape(16.dp),
+                    spotColor = Color.Black.copy(alpha = 0.2f),
+                    ambientColor = Color.Black.copy(alpha = 0.05f)
+                ),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = White)
         ) {
@@ -61,7 +70,14 @@ fun MainQRScreen(
             ) {
                 // Profile Photo
                 Card(
-                    modifier = Modifier.size(150.dp),
+                    modifier = Modifier
+                        .size(150.dp)
+                        .shadow(
+                            elevation = 6.dp,
+                            shape = RoundedCornerShape(12.dp),
+                            spotColor = Color.Black.copy(alpha = 0.25f),
+                            ambientColor = Color.Black.copy(alpha = 0.05f)
+                        ),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     coil.compose.AsyncImage(
@@ -76,9 +92,14 @@ fun MainQRScreen(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
+                val formattedName = student?.fullName?.let {
+                    val parts = it.split(" ")
+                    if (parts.size >= 2) "${parts[0]} ${parts[1]}" else it
+                } ?: "Загрузка..."
+
                 Text(
-                    text = student?.fullName ?: "Загрузка...",
-                    fontSize = 20.sp,
+                    text = formattedName,
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
@@ -86,19 +107,40 @@ fun MainQRScreen(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 // QR Code
-                qrBitmap?.let {
-                    Image(
-                        bitmap = it.asImageBitmap(),
-                        contentDescription = "QR Code",
-                        modifier = Modifier.size(200.dp)
-                    )
+                Card(
+                    modifier = Modifier
+                        .size(280.dp)
+                        .shadow(
+                            elevation = 4.dp,
+                            shape = RoundedCornerShape(12.dp),
+                            spotColor = Color.Black.copy(alpha = 0.2f),
+                            ambientColor = Color.Black.copy(alpha = 0.1f)
+                        ),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = White)
+                ) {
+                    qrBitmap?.let {
+                        Image(
+                            bitmap = it.asImageBitmap(),
+                            contentDescription = "QR Code",
+                            modifier = Modifier.fillMaxSize().padding(16.dp)
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
 
                 Button(
                     onClick = onNavigateToDetails,
-                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .shadow(
+                            elevation = 4.dp,
+                            shape = RoundedCornerShape(8.dp),
+                            spotColor = Color.Black.copy(alpha = 0.3f),
+                            ambientColor = Color.Black.copy(alpha = 0.1f)
+                        ),
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = LightGray)
                 ) {
@@ -107,12 +149,13 @@ fun MainQRScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         Text(
             text = "ПЭК ГГТУ 2026",
             color = White,
             fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 16.dp)
         )
     }
