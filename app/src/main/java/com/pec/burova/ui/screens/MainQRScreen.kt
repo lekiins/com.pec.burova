@@ -29,8 +29,8 @@ fun MainQRScreen(
     onNavigateToDetails: () -> Unit
 ) {
     val student by viewModel.currentStudent.collectAsState()
-    val qrBitmap = remember(student) {
-        student?.let { QRGenerator.generateQRCode(it.id) }
+    val qrBitmap = remember(student?.id, student?.hash) {
+        student?.let { QRGenerator.generateQRCode(it.hash ?: it.id) }
     }
 
     Column(
